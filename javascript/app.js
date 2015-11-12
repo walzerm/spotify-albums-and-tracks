@@ -42,7 +42,6 @@ function bootstrapSpotifySearch(){
           var artistLi = $("<li>" + artist.name + " - " + artist.id + "</li>")
           artistLi.attr('data-spotify-id', artist.id);
           outputArea.append(artistLi);
-
           artistLi.click(displayAlbumsAndTracks);
         })
       });
@@ -55,16 +54,80 @@ function bootstrapSpotifySearch(){
       });
   });
 }
-
 /* COMPLETE THIS FUNCTION! */
+
+
+
 function displayAlbumsAndTracks(event) {
   var appendToMe = $('#albums-and-tracks');
 
   // These two lines can be deleted. They're mostly for show. 
-  console.log("you clicked on:");
-  console.log($(event.target).attr('data-spotify-id'));//.attr('data-spotify-id'));
+  var spotifyArtistID = $(event.target).attr('data-spotify-id');//.attr('data-spotify-id'));
+
+  var getArtistsAlbumsURL = 'https://api.spotify.com/v1/artists/' + spotifyArtistID + '/albums';
+  var albumName;
+  var albumID;
+  spotifyAlbumRequest = $.ajax({
+    type: "GET",
+    dataType: 'json',
+    url: getArtistsAlbumsURL
+  })
+  spotifyAlbumRequest.done( function(data){
+    var artistAlbumObject = data;
+    artistAlbumObject.items.forEach(function(item){
+      albumName = item.name;
+      albumID = item.id;
+      $('#albums-and-tracks').append('<div class=' + albumID + '>' + albumName + '</div>');
+      $("." + albumID).append("<ol id=" + albumID + "></ol>");
+        getAlbumReleaseYear(albumID);
+        getTrackNames(albumID);
+
+
+    })
+  })
 }
 
-/* YOU MAY WANT TO CREATE HELPER FUNCTIONS OF YOUR OWN */
-/* THEN CALL THEM OR REFERENCE THEM FROM displayAlbumsAndTracks */
-/* THATS PERFECTLY FINE, CREATE AS MANY AS YOU'D LIKE */
+function getTrackNames(albumID) {
+   var getTracksURL = "https://api.spotify.com/v1/albums/" + albumID + "/tracks";
+        var spotifyTrackRequest = $.ajax({
+        type: "GET",
+        dataType: 'json',
+        url: getTracksURL
+        })
+        spotifyTrackRequest.done(function(data){
+          var trackObject = data;
+          var trackArray = [trackObject];
+          trackArray.forEach(function(album) {
+            //console.log(album);
+            album.items.forEach(function(track) {
+              var trackPopularityFunction = getTrackPopularity(track.id);
+              trackPopularityFunction.then(function(trackPopularity){
+                $("#" + albumID).append("<li>" + track.name + "  ( Popularity: "+ trackPopularity.popularity + " )</li>");
+              });
+            });
+          });
+        });
+
+}
+
+function getAlbumReleaseYear(albumID) {
+  var getAlbumURL = "https://api.spotify.com/v1/albums/" + albumID;
+        var spotifyAlbumRequest = $.ajax({
+        type: "GET",
+        dataType: 'json',
+        url: getAlbumURL
+        })
+        spotifyAlbumRequest.done(function(singleAlbum) {
+          $("#" + albumID).prepend("<p> Album Release Date --- " +singleAlbum.release_date + "</p>");
+        })
+}
+
+function getTrackPopularity(trackID) {
+  getIndivTrackURL = "https://api.spotify.com/v1/tracks/" + trackID;
+  var spotifyTrackRequest = $.ajax({
+        type: "GET",
+        dataType: 'json',
+        url: getIndivTrackURL
+        })
+  return spotifyTrackRequest
+}
