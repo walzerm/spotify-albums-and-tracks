@@ -16,6 +16,8 @@ function bootstrapSpotifySearch(){
   var outputArea = $("#q-results");
 
   $('#spotify-q-button').on("click", function(){
+      var results = $("<h3>Spotify Search Results:</h3>");
+      $(".put-search").append(results);
       var spotifyQueryRequest;
       spotifyQueryString = $('#spotify-q').val();
       searchUrl = "https://api.spotify.com/v1/search?type=artist&q=" + spotifyQueryString;
@@ -39,8 +41,10 @@ function bootstrapSpotifySearch(){
         // Which contains the first 20 matching elements.
         // In our case they are artists.
         artists.items.forEach(function(artist){
+          
           var artistLi = $("<li>" + artist.name + "</li>")
           artistLi.attr('data-spotify-id', artist.id);
+          
           outputArea.append(artistLi);
 
           artistLi.click(displayAlbumsAndTracks);
@@ -79,7 +83,7 @@ function displayAlbumsAndTracks(event) {
     artistAlbumObject.items.forEach(function(item){
       albumName = item.name;
       albumID = item.id;
-      $('#albums-and-tracks').append('<div class=' + albumID + '>' + albumName + '</div>');
+      $('#albums-and-tracks').append('<div class=' + albumID + '><h4>' + albumName + '</h4></div>');
       $("." + albumID).append("<ol id=" + albumID + "></ol>");
         getAlbumReleaseYear(albumID);
         getTrackNames(albumID);
@@ -120,7 +124,7 @@ function getAlbumReleaseYear(albumID) {
         url: getAlbumURL
         })
         spotifyAlbumRequest.done(function(singleAlbum) {
-          $("#" + albumID).prepend("<p> Album Release Date --- " +singleAlbum.release_date + "</p>");
+          $("#" + albumID).prepend("<p><h5> Album Release Date - " +singleAlbum.release_date + "</h5></p>");
         })
 }
 
