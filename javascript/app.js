@@ -39,9 +39,10 @@ function bootstrapSpotifySearch(){
         // Which contains the first 20 matching elements.
         // In our case they are artists.
         artists.items.forEach(function(artist){
-          var artistLi = $("<li>" + artist.name + " - " + artist.id + "</li>")
+          var artistLi = $("<li>" + artist.name + "</li>")
           artistLi.attr('data-spotify-id', artist.id);
           outputArea.append(artistLi);
+
           artistLi.click(displayAlbumsAndTracks);
         })
       });
@@ -59,6 +60,7 @@ function bootstrapSpotifySearch(){
 
 
 function displayAlbumsAndTracks(event) {
+  $("#albums-and-tracks").empty();
   var appendToMe = $('#albums-and-tracks');
 
   // These two lines can be deleted. They're mostly for show. 
